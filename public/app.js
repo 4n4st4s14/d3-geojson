@@ -9,8 +9,7 @@ var color = d3.scaleQuantize().range(['rgb(255,245,240)','rgb(254,224,210)','rgb
 
 //projection
 var projection = d3.geoAlbersUsa()
-          .scale([chart_width * 5])
-          .translate([chart_width/2, chart_height/2]);
+          .translate([0, 0]);
 
 
 var path = d3.geoPath(projection);
@@ -22,14 +21,24 @@ var svg             =   d3.select("#chart")
     .attr("width", chart_width)
     .attr("height", chart_height);
 
-var drag_map = d3.drag().on('drag',function(){
+var zoom_map = d3.zoom()
+.scaleExtent([0.5,3.0])
+.translateExtent([
+  [-1000,-500],
+  [1000,500]
+])
+.on('zoom',function(){
     //console.log( d3.event );
 
-    var offset = projection.translate();
-    offset[0] += d3.event.dx;
-    offset[1] += d3.event.dy;
+    var offset = [
+       d3.event.transform.x,
+       d3.event.transform.y
+     ];
 
-    projection.translate(offset);
+    var scale = d3.event.transform.k * 2000;
+
+    projection.translate(offset)
+        .scale( scale );
 
     svg.selectAll( 'path')
       .transition()
@@ -47,7 +56,12 @@ var drag_map = d3.drag().on('drag',function(){
 
 var map = svg.append('g')
     .attr('id', 'map')
-    .call(drag_map);
+    .call(zoom_map)
+    .call(zoom_map.transform,
+          d3.zoomIdentity
+            .translate( chart_width / 2, chart_height / 2 )
+            .scale(1)
+    );
 
 map.append('rect')
       .attr('x',0)
@@ -138,40 +152,46 @@ d3.json('/zombie', function(err, zombie_data){
     }
 });
 
-d3.selectAll("#buttons button").on('click', function(){
-    var offset = projection.translate();
+d3.selectAll("#buttons button.panning").on('click', function(){
+    //var offset = projection.translate
+    var x = 0;
+    var y = 0;
     var distance  = 100;
-    var direction = d3.select(this).attr('class');
+    var direction = d3.select(this).attr('class').replace('panning ','');
 
     switch (direction) {
     case "up":
-          offset[1] += distance;
+          y += distance;
 
         break;
     case "down":
-        offset[1] -= distance;
+        y -= distance;
         break;
     case "left":
-        offset[0] += distance;
+        x += distance;
         break;
     case "right":
-        offset[0] -= distance;
+        x -= distance;
         break;
       }
 
-      projection.translate(offset);
+    map.transition()
+      .call( zoom_map.translateBy, x, y );
 
-      svg.selectAll( 'path')
-        .transition()
-        .attr('d', path);
+});
 
-      svg.selectAll( 'circle')
-          .transition()
-          .attr('cx',function(d){
-            return projection([d.lon, d.lat])[0];
-          })
-          .attr('cy',function(d){
-            return projection([d.lon, d.lat])[1];
-          });
 
+d3.selectAll("#buttons button.zooming").on('click', function(){
+
+    var scale =1;
+    var direction = d3.select(this).attr('class').replace('zooming ', '');
+
+    if(direction === 'in'){
+      scale = 1.25;
+    }else if (direction === 'out'){
+      scale = 0.75;
+    }
+
+    map.transition()
+      .call(zoom_map.scaleBy, scale);
 });
