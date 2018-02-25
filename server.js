@@ -16,7 +16,7 @@ app.get("/", function(req, res) {
 app.get('/data', function(req, res) {
    fs.readFile('./us.json', 'utf8', function (err, data) {
        res.send(data);
-       console.log("yo", data)
+    //   console.log("yo", data)
    });
 });
 // Starts the server to begin listening
