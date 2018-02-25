@@ -19,6 +19,19 @@ app.get('/data', function(req, res) {
     //   console.log("yo", data)
    });
 });
+
+app.get('/zombie', function(req, res){
+  fs.readFile('./zombie-attacks.json', 'utf8', function (err, data){
+    res.send(data);
+
+  })
+})
+
+app.get('/cities', function(req,res){
+  fs.readFile('./us-cities.json', 'utf8', function(err,data){
+    res.send(data);
+  })
+})
 // Starts the server to begin listening
 // =============================================================
 app.listen(PORT, function() {
