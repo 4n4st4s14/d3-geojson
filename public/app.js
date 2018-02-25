@@ -9,7 +9,7 @@ var color = d3.scaleQuantize().range(['rgb(255,245,240)','rgb(254,224,210)','rgb
 
 //projection
 var projection = d3.geoAlbersUsa()
-          .scale([chart_width])
+          .scale([chart_width * 5])
           .translate([chart_width/2, chart_height/2]);
 
 
@@ -21,6 +21,40 @@ var svg             =   d3.select("#chart")
     .append("svg")
     .attr("width", chart_width)
     .attr("height", chart_height);
+
+var drag_map = d3.drag().on('drag',function(){
+    //console.log( d3.event );
+
+    var offset = projection.translate();
+    offset[0] += d3.event.dx;
+    offset[1] += d3.event.dy;
+
+    projection.translate(offset);
+
+    svg.selectAll( 'path')
+      .transition()
+      .attr('d', path);
+
+    svg.selectAll( 'circle')
+        .transition()
+        .attr('cx',function(d){
+          return projection([d.lon, d.lat])[0];
+        })
+        .attr('cy',function(d){
+          return projection([d.lon, d.lat])[1];
+        });
+});
+
+var map = svg.append('g')
+    .attr('id', 'map')
+    .call(drag_map);
+
+map.append('rect')
+      .attr('x',0)
+      .attr('y',0)
+      .attr('width', chart_width)
+      .attr('height', chart_height)
+      .attr('opacity', 0);
 
 d3.json('/zombie', function(err, zombie_data){
   if( err ){
@@ -59,7 +93,7 @@ d3.json('/zombie', function(err, zombie_data){
 
               console.log(us_data)
 
-            svg.selectAll('path')
+            map.selectAll('path')
               .data(us_data.features)
               .enter()
               .append('path')
@@ -80,7 +114,7 @@ d3.json('/zombie', function(err, zombie_data){
           if(err){
             return console.log(err)
           }
-        svg.selectAll('circle')
+        map.selectAll('circle')
           .data(cities_data)
           .enter()
           .append('circle')
@@ -102,4 +136,42 @@ d3.json('/zombie', function(err, zombie_data){
       });
 
     }
+});
+
+d3.selectAll("#buttons button").on('click', function(){
+    var offset = projection.translate();
+    var distance  = 100;
+    var direction = d3.select(this).attr('class');
+
+    switch (direction) {
+    case "up":
+          offset[1] += distance;
+
+        break;
+    case "down":
+        offset[1] -= distance;
+        break;
+    case "left":
+        offset[0] += distance;
+        break;
+    case "right":
+        offset[0] -= distance;
+        break;
+      }
+
+      projection.translate(offset);
+
+      svg.selectAll( 'path')
+        .transition()
+        .attr('d', path);
+
+      svg.selectAll( 'circle')
+          .transition()
+          .attr('cx',function(d){
+            return projection([d.lon, d.lat])[0];
+          })
+          .attr('cy',function(d){
+            return projection([d.lon, d.lat])[1];
+          });
+
 });
