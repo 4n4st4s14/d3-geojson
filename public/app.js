@@ -2,8 +2,7 @@
 // Width and height
 var chart_width     =   800;
 var chart_height    =   600;
-var color = d3.scaleQuantize().range(['rgb(255,245,240)','rgb(254,224,210)','rgb(252,187,161)',
-            'rgb(252,146,114)','rgb(251,106,74)','rgb(239,59,44)',
+var color = d3.scaleQuantize().range(['rgb(255,245,240)','rgb(254,224,210)','rgb(252,187,161)','rgb(252,146,114)','rgb(251,106,74)','rgb(239,59,44)',
             'rgb(203,24,29)','rgb(165,15,21)','rgb(103,0,13)'
     ]);
 
@@ -162,7 +161,6 @@ d3.selectAll("#buttons button.panning").on('click', function(){
     switch (direction) {
     case "up":
           y += distance;
-
         break;
     case "down":
         y -= distance;

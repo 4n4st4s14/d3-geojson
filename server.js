@@ -7,11 +7,14 @@ var fs = require("fs");
 var app = express();
 var PORT = 3000;
 
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname, "index.html"));
 });
+
+console.log("==========")
+console.log(path.resolve(__dirname, "/"))
 
 app.get('/data', function(req, res) {
    fs.readFile('./us.json', 'utf8', function (err, data) {
@@ -32,6 +35,8 @@ app.get('/cities', function(req,res){
     res.send(data);
   })
 })
+
+
 // Starts the server to begin listening
 // =============================================================
 app.listen(PORT, function() {
