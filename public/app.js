@@ -58,8 +58,8 @@ var map = svg.append('g')
     .call(zoom_map)
     .call(zoom_map.transform,
           d3.zoomIdentity
-            .translate( chart_width / 2, chart_height / 2 )
-            .scale(1)
+            .translate( chart_width /2 , chart_height /2 )
+            .scale(0.5)
     );
 
 map.append('rect')
@@ -93,7 +93,7 @@ d3.json('/zombie', function(err, zombie_data){
       });
 
 
-      generate =(us_data)=> {
+      generate = (us_data) => {
 
             us_data.features.forEach(function(us_e, us_i){
               zombie_data.forEach(function(z_e, z_i){
